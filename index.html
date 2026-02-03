@@ -22,10 +22,13 @@
       cursor: pointer;
     }
 
-    canvas {
+    /* Smaller charts */
+    .chart-small {
+      width: 500px;
+      height: 250px;
       background: white;
       border: 1px solid #ccc;
-      margin-bottom: 40px;
+      margin-bottom: 30px;
     }
 
     .section {
@@ -45,7 +48,8 @@
     }
     .update img {
       max-width: 400px;
-      max-height: 100px
+      max-height: 120px;
+      display: block;
       margin-top: 10px;
     }
     .title {
@@ -62,8 +66,14 @@
 
 <!-- Top Navigation -->
 <div class="topbar">
-  <button onclick="showSection('dashboard')">Statistics</button>
   <button onclick="showSection('updates')">Updates</button>
+  <button onclick="showSection('dashboard')">Statistics</button>
+</div>
+
+<!-- UPDATES SECTION (DEFAULT) -->
+<div id="updates" class="section active">
+  <h1>Current Situation</h1>
+  <div id="updatesContainer"></div>
 </div>
 
 <!-- DASHBOARD SECTION -->
@@ -71,16 +81,16 @@
   <h1>Simulation Dashboard</h1>
 
   <h2>Approval Ratings</h2>
-  <canvas id="approvalChart" width="800" height="350"></canvas>
+  <canvas id="approvalChart" class="chart-small"></canvas>
 
-  <h2>Economic Indicators</h2>
-  <canvas id="economicChart" width="800" height="350"></canvas>
-</div>
+  <h2>GDP per Capita</h2>
+  <canvas id="gdpChart" class="chart-small"></canvas>
 
-<!-- UPDATES SECTION -->
-<div id="updates" class="section active">
-  <h1>Current Situation</h1>
-  <div id="updatesContainer"></div>
+  <h2>Total Fertility Rate (TFR)</h2>
+  <canvas id="tfrChart" class="chart-small"></canvas>
+
+  <h2>Human Development Index (HDI)</h2>
+  <canvas id="hdiChart" class="chart-small"></canvas>
 </div>
 
 <script>
@@ -98,69 +108,83 @@ async function loadCSV(file) {
   return text.trim().split("\n").map(r => r.split(","));
 }
 
-/* ---------- Approval Ratings Chart ---------- */
+/* ---------- Approval Ratings ---------- */
 loadCSV("approval.csv").then(data => {
   const headers = data[0];
   const rows = data.slice(1);
 
-  const labels = rows.map(r => r[0]);
-  const datasets = headers.slice(1).map((h, i) => ({
-    label: h.replace("_", " ").toUpperCase(),
-    data: rows.map(r => r[i + 1] === "" ? null : Number(r[i + 1])),
-    borderWidth: 2,
-    fill: false
-  }));
-
   new Chart(document.getElementById("approvalChart"), {
     type: "line",
-    data: { labels, datasets },
+    data: {
+      labels: rows.map(r => r[0]),
+      datasets: headers.slice(1).map((h, i) => ({
+        label: h.toUpperCase(),
+        data: rows.map(r => r[i + 1] ? Number(r[i + 1]) : null),
+        borderWidth: 2,
+        fill: false
+      }))
+    },
     options: { scales: { y: { min: 0, max: 100 } } }
   });
 });
 
-/* ---------- Economic Indicators Chart ---------- */
+/* ---------- Economic Indicators (Independent Charts) ---------- */
 loadCSV("economy.csv").then(data => {
-  const headers = data[0];
   const rows = data.slice(1);
-
   const labels = rows.map(r => r[0]);
-  const datasets = headers.slice(1).map((h, i) => ({
-    label: h.toUpperCase(),
-    data: rows.map(r => Number(r[i + 1])),
-    borderWidth: 2,
-    fill: false
-  }));
 
-  new Chart(document.getElementById("economicChart"), {
-    type: "line",
-    data: { labels, datasets }
-  });
+  function makeChart(id, label, colIndex) {
+    new Chart(document.getElementById(id), {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          label,
+          data: rows.map(r => Number(r[colIndex])),
+          borderWidth: 2,
+          fill: false
+        }]
+      }
+    });
+  }
+
+  makeChart("gdpChart", "GDP per Capita", 1);
+  makeChart("tfrChart", "Total Fertility Rate", 2);
+  makeChart("hdiChart", "HDI", 3);
 });
 
 /* ---------- Situation Updates ---------- */
-const updateFiles = [
-  "UpdateFolder/update1.txt",
-];
+const updateFiles = Array.from({ length: 100 }, (_, i) =>
+  `UpdateFolder/update${i + 1}.txt`
+);
 
 updateFiles.forEach(async (file, index) => {
-  const res = await fetch(file);
-  const text = await res.text();
+  try {
+    const res = await fetch(file);
+    if (!res.ok) return;
 
-  const lines = text.split("\n");
-  const title = lines[0].replace("Title:", "").trim();
-  const date = lines[1].replace("Date:", "").trim();
-  const body = lines.slice(3).join("<br>");
+    const text = (await res.text()).trim();
+    if (!text) return;
 
-  const div = document.createElement("div");
-  div.className = "update";
-  div.innerHTML = `
-    <div class="title">${title}</div>
-    <div class="date">${date}</div>
-    <div>${body}</div>
-    <img src="Images/update${index + 1}.jpg" onerror="this.style.display='none'">
-  `;
+    const lines = text.split("\n");
+    if (!lines[0].startsWith("Title:")) return;
 
-  document.getElementById("updatesContainer").appendChild(div);
+    const title = lines[0].replace("Title:", "").trim();
+    const date = lines[1].replace("Date:", "").trim();
+    const body = lines.slice(3).join("<br>");
+
+    const div = document.createElement("div");
+    div.className = "update";
+    div.innerHTML = `
+      <div class="title">${title}</div>
+      <div class="date">${date}</div>
+      <div>${body}</div>
+      <img src="Images/update${index + 1}.jpg"
+           onerror="this.style.display='none'">
+    `;
+
+    document.getElementById("updatesContainer").appendChild(div);
+  } catch {}
 });
 </script>
 
