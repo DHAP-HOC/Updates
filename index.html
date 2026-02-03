@@ -139,7 +139,7 @@ loadCSV("economy.csv").then(data => {
 
 /* ---------- Situation Updates ---------- */
 const updateFiles = [
-  "updates/update1.txt",
+  "UpdateFolder/update1.txt",
 ];
 
 updateFiles.forEach(async (file, index) => {
@@ -157,7 +157,7 @@ updateFiles.forEach(async (file, index) => {
     <div class="title">${title}</div>
     <div class="date">${date}</div>
     <div>${body}</div>
-    <img src="images/update${index + 1}.jpg" onerror="this.style.display='none'">
+    <img src="Images/update${index + 1}.jpg" onerror="this.style.display='none'">
   `;
 
   document.getElementById("updatesContainer").appendChild(div);
