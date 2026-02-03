@@ -1,0 +1,4 @@
+Title: Title of update goes here
+Date: Date of publishing
+
+The items in the article
