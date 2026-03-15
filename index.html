@@ -2,66 +2,122 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Situation Dashboard</title>
+  <title> DHAP 2026 - House of Commons Updates </title>
+  <link rel="icon" type="image/x-icon" href="Images/favicon.ico">
+  <script>
+  const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const gridColor = isDarkMode ? "#444" : "#ddd";
+  const tickColor = isDarkMode ? "#fff" : "#000";
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    :root {
+      --bg: #f4f4f4;
+      --card-bg: white;
+      --text: #000;
+      --border: #ccc;
+      --button-bg: #e0e0e0;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121212;
+        --card-bg: #1e1e1e;
+        --text: #ffffff;
+        --border: #333;
+        --button-bg: #2a2a2a;
+      }
+    }
+    
     body {
-      font-size:20px;
+      font-size: 20px;
       font-family: Arial, sans-serif;
       margin: 30px;
-      background: #f4f4f4;
+      background: var(--bg);
+      color: var(--text);
     }
-
+    
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    
+    .header img {
+      height: 70px;
+    }
+    
+    .site-title {
+      font-size: 32px;
+      font-weight: bold;
+      text-align: center;
+      flex-grow: 1;
+    }
+    
     /* Top bar */
     .topbar {
       margin-bottom: 25px;
     }
+    
     .topbar button {
       padding: 8px 16px;
       margin-right: 10px;
       font-weight: bold;
       cursor: pointer;
+      background: var(--button-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
     }
-
-    /* Smaller charts */
-    .chart-small {
-      background: white;
-      border: 1px solid #ccc;
+    
+    /* Cards */
+    .chart-small,
+    .update {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
       margin-bottom: 30px;
+      padding: 15px;
     }
-
+    
     .section {
       display: none;
     }
-
+    
     .section.active {
       display: block;
     }
-
-    /* Updates styling */
-    .update {
-      background: white;
-      border: 1px solid #ccc;
-      padding: 15px;
-      margin-bottom: 25px;
-    }
+    
     .update img {
       max-width: 400px;
       max-height: 120px;
       display: block;
       margin-top: 10px;
     }
+    
     .title {
       font-size: 25px;
       font-weight: bold;
     }
+    
     .date {
       color: gray;
       margin-bottom: 10px;
     }
-  </style>
+    </style>
 </head>
 <body>
+
+<!-- Header with Logos + Title -->
+<div class="header">
+  <img src="Images/logo1.png" alt="Left Logo">
+
+  <div class="site-title">
+    Welcome to the House of Commons
+  </div>
+
+  <img src="Images/logo2.png" alt="Right Logo">
+</div>
 
 <!-- Top Navigation -->
 <div class="topbar">
@@ -85,11 +141,29 @@
   <h2>GDP per Capita</h2>
   <canvas id="gdpChart" class="chart-small"></canvas>
 
-  <h2>Total Fertility Rate (TFR)</h2>
+  <h2>CPI Inflation</h2>
+  <canvas id="cpiChart" class="chart-small"></canvas>
+
+  <h2>Unemployment Rate</h2>
+  <canvas id="unemploymentChart" class="chart-small"></canvas>
+
+  <h2>Bank of England interest rate</h2>
+  <canvas id="interestChart" class="chart-small"></canvas>
+
+  <h2>GBP vs USD</h2>
+  <canvas id="gbpChart" class="chart-small"></canvas>
+
+  <h2>Total Fertility Rate</h2>
   <canvas id="tfrChart" class="chart-small"></canvas>
 
-  <h2>Human Development Index (HDI)</h2>
+  <h2>Human Development Index</h2>
   <canvas id="hdiChart" class="chart-small"></canvas>
+
+  <h2>PM2.5 Mean Pollution</h2>
+  <canvas id="pollutionChart" class="chart-small"></canvas>
+
+  <h2>Net Exports</h2>
+  <canvas id="exportsChart" class="chart-small"></canvas>
 </div>
 
 <script>
@@ -106,7 +180,7 @@ async function loadCSV(file) {
   const text = await response.text();
   return text.trim().split("\n").map(r => r.split(","));
 }
-
+  
 /* ---------- Approval Ratings ---------- */
 loadCSV("approval.csv").then(data => {
   const headers = data[0];
@@ -123,7 +197,21 @@ loadCSV("approval.csv").then(data => {
         fill: false
       }))
     },
-    options: { scales: { y: { min: 0, max: 100 } } }
+    options: {scales: {x: {
+      ticks: { color: tickColor },
+      grid: { color: gridColor }
+    },
+    y: {
+      ticks: { color: tickColor },
+      grid: { color: gridColor }
+    }
+    },
+    plugins: {
+      legend: {
+        labels: { color: tickColor }
+      }
+    }
+  }
   });
 });
 
@@ -147,9 +235,15 @@ loadCSV("economy.csv").then(data => {
     });
   }
 
-  makeChart("gdpChart", "GDP per Capita", 1);
-  makeChart("tfrChart", "Total Fertility Rate", 2);
-  makeChart("hdiChart", "HDI", 3);
+  makeChart("gdpChart", "GDP per Capita (PPP)", 1);
+  makeChart("cpiChart", "CPI (Inflation) Index", 2);
+  makeChart("unemploymentChart", "Unemployment Rate", 3);
+  makeChart("interestChart", "Bank of England Interest Rate", 4);
+  makeChart("gbpChart", "GBP : USD", 5);
+  makeChart("tfrChart", "Total Fertility Rate", 6);
+  makeChart("hdiChart", "Human Development Index", 7);
+  makeChart("pollutionChart", "PM2.5 Pollution Index", 8);
+  makeChart("exportsChart", "Net Exports in GBP", 9);
 });
 
 /* ---------- Situation Updates ---------- */
