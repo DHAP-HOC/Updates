@@ -288,38 +288,61 @@ loadCSV("economy.csv").then(data => {
 });
 
 /* ---------- Situation Updates ---------- */
-const updateFiles = Array.from({ length: 100 }, (_, i) =>
-  `UpdateFolder/update${i + 1}.txt`
-);
+const updateFiles = Array.from({ length: 100 }, (_, i) => ({
+  file: `UpdateFolder/update${i + 1}.txt`,
+  index: i + 1
+}));
 
-updateFiles.forEach(async (file, index) => {
-  try {
-    const res = await fetch(file);
-    if (!res.ok) return;
+async function loadUpdates() {
+  const updates = [];
+  for (const u of updateFiles) {
+    try {
+      const res = await fetch(u.file);
+      if (!res.ok) continue;
 
-    const text = (await res.text()).trim();
-    if (!text) return;
+      const text = (await res.text()).trim();
+      if (!text) continue;
 
-    const lines = text.split("\n");
-    if (!lines[0].startsWith("Title:")) return;
+      const lines = text.split("\n");
+      if (!lines[0].startsWith("Title:")) continue;
 
-    const title = lines[0].replace("Title:", "").trim();
-    const date = lines[1].replace("Date:", "").trim();
-    const body = lines.slice(3).join("<br>");
+      const title = lines[0].replace("Title:", "").trim();
+      const date = lines[1].replace("Date:", "").trim();
+      const body = lines.slice(3).join("<br>");
 
+      updates.push({
+        index: u.index,
+        title,
+        date,
+        body
+      });
+
+    } catch {}
+  }
+
+  /* sort so newest (highest index) is first */
+  updates.sort((a, b) => b.index - a.index);
+
+  const container = document.getElementById("updatesContainer");
+
+  updates.forEach(update => {
     const div = document.createElement("div");
     div.className = "update";
+
     div.innerHTML = `
-      <div class="title">${title}</div>
-      <div class="date">${date}</div>
-      <div>${body}</div>
-      <img src="Images/update${index + 1}.jpg"
+      <div class="title">${update.title}</div>
+      <div class="date">${update.date}</div>
+      <div>${update.body}</div>
+      <img src="Images/update${update.index}.jpg"
            onerror="this.style.display='none'">
     `;
 
-    document.getElementById("updatesContainer").appendChild(div);
-  } catch {}
-});
+    container.appendChild(div);
+  });
+
+}
+
+loadUpdates();
 </script>
 
 </body>
