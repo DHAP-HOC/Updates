@@ -104,6 +104,26 @@
       color: gray;
       margin-bottom: 10px;
     }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    
+    .chart-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 10px;
+    }
+    
+    .chart-box canvas {
+      height: 180px !important;
+    }
+    
+    .chart-box h3 {
+      margin: 0 0 5px 0;
+      font-size: 18px;
+    }
     </style>
 </head>
 <body>
@@ -138,32 +158,53 @@
   <h2>Favourability Ratings</h2>
   <canvas id="approvalChart" class="chart-small"></canvas>
 
-  <h2>GDP per Capita</h2>
-  <canvas id="gdpChart" class="chart-small"></canvas>
+  <div class="chart-grid">
 
-  <h2>CPI Inflation</h2>
-  <canvas id="cpiChart" class="chart-small"></canvas>
+  <div class="chart-box">
+  <h3>GDP per Capita</h3>
+  <canvas id="gdpChart"></canvas>
+  </div>
+  
+  <div class="chart-box">
+  <h3>CPI Inflation</h3>
+  <canvas id="cpiChart"></canvas>
+  </div>
+  
+  <div class="chart-box">
+  <h3>Unemployment Rate</h3>
+  <canvas id="unemploymentChart"></canvas>
+  </div>
+  
+  <div class="chart-box">
+  <h3>Bank of England Interest Rate</h3>
+  <canvas id="interestChart"></canvas>
+  </div>
+  
+  <div class="chart-box">
+  <h3>GBP vs USD</h3>
+  <canvas id="gbpChart"></canvas>
+  </div>
+  
+  <div class="chart-box">
+  <h3>Total Fertility Rate</h3>
+  <canvas id="tfrChart"></canvas>
+  </div>
+  
+  <div class="chart-box">
+  <h3>Human Development Index</h3>
+  <canvas id="hdiChart"></canvas>
+  </div>
+  
+  <div class="chart-box">
+  <h3>PM2.5 Mean Pollution</h3>
+  <canvas id="pollutionChart"></canvas>
+  </div>
+  
+  <div class="chart-box">
+  <h3>Net Exports</h3>
+  <canvas id="exportsChart"></canvas>
+</div>
 
-  <h2>Unemployment Rate</h2>
-  <canvas id="unemploymentChart" class="chart-small"></canvas>
-
-  <h2>Bank of England interest rate</h2>
-  <canvas id="interestChart" class="chart-small"></canvas>
-
-  <h2>GBP vs USD</h2>
-  <canvas id="gbpChart" class="chart-small"></canvas>
-
-  <h2>Total Fertility Rate</h2>
-  <canvas id="tfrChart" class="chart-small"></canvas>
-
-  <h2>Human Development Index</h2>
-  <canvas id="hdiChart" class="chart-small"></canvas>
-
-  <h2>PM2.5 Mean Pollution</h2>
-  <canvas id="pollutionChart" class="chart-small"></canvas>
-
-  <h2>Net Exports</h2>
-  <canvas id="exportsChart" class="chart-small"></canvas>
 </div>
 
 <script>
