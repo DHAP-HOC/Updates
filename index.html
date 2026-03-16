@@ -339,59 +339,58 @@ const updateFiles = Array.from({ length: 100 }, (_, i) => ({
 }));
 
 async function loadUpdates() {
-    const promises = updateFiles.map(async (u) => {
-      try {
-        const res = await fetch(u.file);
-        if (!res.ok) return null;
-  
-        const text = (await res.text()).trim();
-        if (!text) return null;
-  
-        const lines = text.split("\n");
-        if (!lines[0].startsWith("Title:")) return null;
-  
-        return {
-          index: u.index,
-          title: lines[0].replace("Title:", "").trim(),
-          date: lines[1].replace("Date:", "").trim(),
-          body: lines.slice(3).join("<br>")
-        };
-  
-      } catch {
-        return null;
-      }
-    });
-  
-    const updates = (await Promise.all(promises)).filter(Boolean);
-  
-    /* newest first */
-    updates.sort((a, b) => b.index - a.index);
-  
-    const container = document.getElementById("updatesContainer");
-    container.innerHTML = "";
-  
-    updates.forEach(update => {
-  
-      const div = document.createElement("div");
-      div.className = "update";
-      div.style.cursor = "pointer";
-  
-      div.onclick = () => openModal(update);
-  
-      div.innerHTML = `
-        <div class="title">${update.title}</div>
-        <div class="date">${update.date}</div>
-        <div>${update.body}</div>
-        <img src="Images/update${update.index}.jpg"
-             onerror="this.style.display='none'">
-      `;
-  
-      container.appendChild(div);
-  
-    });
-  
-  }
 
+  const promises = updateFiles.map(async (u) => {
+    try {
+      const res = await fetch(u.file);
+      if (!res.ok) return null;
+
+      const text = (await res.text()).trim();
+      if (!text) return null;
+
+      const lines = text.split("\n");
+      if (!lines[0].startsWith("Title:")) return null;
+
+      return {
+        index: u.index,
+        title: lines[0].replace("Title:", "").trim(),
+        date: lines[1].replace("Date:", "").trim(),
+        body: lines.slice(3).join("<br>")
+      };
+
+    } catch {
+      return null;
+    }
+  });
+
+  const updates = (await Promise.all(promises)).filter(Boolean);
+
+  updates.sort((a, b) => b.index - a.index);
+
+  const container = document.getElementById("updatesContainer");
+  container.innerHTML = "";
+
+  updates.forEach(update => {
+
+    const div = document.createElement("div");
+    div.className = "update";
+    div.style.cursor = "pointer";
+    div.onclick = () => openModal(update);
+
+    div.innerHTML = `
+      <div class="title">${update.title}</div>
+      <div class="date">${update.date}</div>
+      <div>${update.body}</div>
+      <img src="Images/update${update.index}.jpg"
+           onerror="this.style.display='none'">
+    `;
+
+    container.appendChild(div);
+
+  });
+}
+
+loadUpdates();
   /* sort so newest (highest index) is first */
   updates.sort((a, b) => b.index - a.index);
 
